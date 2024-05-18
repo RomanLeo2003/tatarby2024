@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Tatarski</string>
+    <string name="trainings">Тренировки</string>
+    <string name="my_words">Мои слова</string>
+
+    <string name="chat_bot">Чат-бот</string>
+    <string name="quiz_story">Чтение</string>
+    <string name="pronunciation_check">Говорение</string>
+    <string name="textbooks">Учебники</string>
+    <string name="essay">Грамматика</string>
+
+    <string name="input_text">Введите текст…</string>
+    <string name="bot_typing">Печатает</string>
+    <string name="choose_topic_to_start_quiz">Выберите тему для начала викторины:</string>
+    <string name="write_essay_on_topic">Напишите эссе на тему:</string>
+    <string name="check_grammar">Проверить</string>
+    <string name="continuee">Продолжить</string>
+    <string name="feedback">Результат:</string>
+    <string name="loading">Обработка</string>
+    <string name="pronounce_this_text">Произнесите следующий текст:</string>
+
+</resources>
