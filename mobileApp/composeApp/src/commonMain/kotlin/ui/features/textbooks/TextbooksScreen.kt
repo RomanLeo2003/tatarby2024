@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +28,7 @@ import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
 import tatarby.composeapp.generated.resources.Res
 import tatarby.composeapp.generated.resources.tatarski_book
 import tatarby.composeapp.generated.resources.textbooks
@@ -34,12 +36,13 @@ import ui.TatarskiAppBackground
 import ui.theme.TatarskiTheme
 
 @Composable
-fun TextbooksRoute(navigateBack: () -> Unit) {
+fun TextbooksRoute(navigateBack: () -> Unit, viewModel: TextBooksViewModel = koinInject()) {
 
     TextbooksScreen(
         modifier = Modifier.fillMaxSize().padding(top = 16.dp, start = 16.dp, end = 16.dp),
         navigateBack = navigateBack,
-        textbooks = textBooks
+        textbooks = textBooks,
+        navigateToLink = viewModel::navigateToLink
     )
 }
 
@@ -48,7 +51,8 @@ fun TextbooksRoute(navigateBack: () -> Unit) {
 fun TextbooksScreen(
     modifier: Modifier = Modifier,
     navigateBack: () -> Unit = {},
-    textbooks: List<Textbook> = emptyList()
+    textbooks: List<Textbook> = emptyList(),
+    navigateToLink: (String) -> Unit = {}
 ) {
     Column(modifier = modifier) {
         Text(
@@ -67,15 +71,18 @@ fun TextbooksScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(textbooks) { item ->
-                TextBookItem(textbook = item)
+                TextBookItem(textbook = item) {
+                    navigateToLink(item.link)
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TextBookItem(modifier: Modifier = Modifier, textbook: Textbook) {
-    Card(modifier = modifier, shape = RoundedCornerShape(15.dp)) {
+fun TextBookItem(modifier: Modifier = Modifier, textbook: Textbook, onClick: () -> Unit = {}) {
+    Card(modifier = modifier, shape = RoundedCornerShape(15.dp), onClick = onClick) {
         Box {
             AsyncImage(
                 model = textbook.imageModel,

@@ -27,6 +27,7 @@ import tatarby.composeapp.generated.resources.check_grammar
 import tatarby.composeapp.generated.resources.feedback
 import tatarby.composeapp.generated.resources.input_text
 import tatarby.composeapp.generated.resources.write_essay_on_topic
+import ui.theme.Gray800
 import ui.theme.Green800
 
 @OptIn(ExperimentalResourceApi::class)
@@ -55,7 +56,8 @@ fun EssayCard(
                 text = topicTitle,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = 10.dp),
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                color = Gray800
             )
 
             Spacer(modifier = Modifier.height(10.dp))

@@ -34,7 +34,7 @@ class QuizStoryViewModel(
 
     fun chooseOption(option: String) {
         viewModelScope.launch {
-            quizStoryRepository.chooseOption(option)
+            quizStoryRepository.chooseOption(option, listOf("патшалык"))
         }
     }
 }

@@ -1,6 +1,6 @@
 package domain.service
 
-import domain.model.QuizStory
+import kotlinx.serialization.Serializable
 
 interface AIToolsService {
 
@@ -14,5 +14,15 @@ interface AIToolsService {
     suspend fun sendMessageToChatBot(text: String): String
 
 
-    suspend fun chooseOptionQuizStory(option: String): QuizStory
+    suspend fun getStory(level: Int, prevText: Int, words: List<String>): String
+    suspend fun getStoryOptions(level: Int, prevText: Int, words: List<String>): List<String>
+
+    suspend fun textToSpeach(text: String): AudioResponse
+    suspend fun checkPronunciation(byteArray: ByteArray, text: String): String
 }
+
+@Serializable
+data class AudioResponse(
+    val wav_base64: String,
+    val sample_rate: Int
+)

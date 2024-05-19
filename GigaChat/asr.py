@@ -7,7 +7,7 @@ class ASR_class:
     def __init__(
         self
     ):
-        self.url = 'https://rus-asr.api.translate.tatar/listening/'
+        self.url = 'https://tat-asr.api.translate.tatar/listening/'
         self.headers = {
             'accept': 'application/json',
         }
@@ -17,5 +17,5 @@ class ASR_class:
         }
 
         asr = requests.post(self.url, headers=self.headers, files=files)
-
-        return asr
+        print(asr.json())
+        return asr.json()["text"]

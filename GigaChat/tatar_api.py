@@ -114,14 +114,13 @@ def asr_feedback(data: Asr_data):
     text = data.text
     base64_audio= base64.b64decode(data.audio)
     output_file = "output.wav"
-    with wave.open(output_file, 'wb') as wf:
-        wf.setnchannels(1)  # Установите количество каналов (1 для моно, 2 для стерео)
-        wf.setsampwidth(2)  # Установите ширину выборки в байтах (2 для 16 бит)
-        wf.setframerate(16000)  # Установите частоту дискретизации (например, 44100 Гц)
-        wf.writeframes(base64_audio)
-    response = asr_class.asr(filename=output_file)
-    msg = "Проверь и откоректируй следующее эссе на наличие грамматических, орфографических, пунктуационных и семантических ошибок на русском: " + message.user_message
-    response_errors = assistant.chat(msg)
+    with open(output_file, 'wb') as wf:
+        wf.write(base64_audio)
+    asr = asr_class.asr(filename=output_file)
+    print(asr)
+    print(text)
+    msg = f'Оцени эти два текста на татарском языке: {asr}, {text}. Если тексты различаются, скажи пользователю, что все плохо, если они похожи, то скажи ему, что все хорошо. отвевай коротко, если все хорошо. если все плохо, добавь к ответу краткое обьяснение что не так, но при этому все равно короткий ответ. говори только про ошибки в первом предложении, так как второе исходно правильное. и первое предложение называй "Ваша запись"'
+    response = assistant.chat(msg)
     response_data = {
         "answer": response,
     }
@@ -129,7 +128,7 @@ def asr_feedback(data: Asr_data):
 
 @app.post("/esse_cost/", description="это костыль для эссе, использует только гпт", response_model=Dict[str, Any])
 def check_esse_cost(message: Chat):
-    msg = "Проверь и откоректируй следующее эссе на наличие грамматических, орфографических, пунктуационных и семантических ошибок на русском: " + message.user_message
+    msg = "Проверь следующее эссе на наличие грамматических, орфографических, пунктуационных ошибок и подредактируй его не изменяя смысла: " + message.user_message
     response_errors = assistant.chat(msg)
     # msg_recense = "Напиши небольшую рецензию на эссе, обрати внимание на его смысл, расстановку акцентов, текст должен быть не слишком коротким: " + message.user_message
     response_recense = assistant.get_feedback(len(message.user_message))

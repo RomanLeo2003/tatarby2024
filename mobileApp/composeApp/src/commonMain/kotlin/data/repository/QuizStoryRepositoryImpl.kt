@@ -33,25 +33,32 @@ class FakeQuizStoryRepository(
         _options.update { FakeQuizStory.topicOptionsList }
     }
 
-    override suspend fun chooseOption(option: String) = withContext(dispatcher) {
+    override suspend fun chooseOption(option: String, words: List<String>) = withContext(dispatcher) {
         if (_chatMessages.value.isEmpty()) {
             addMessage(Message("Темадан башлап хикәя башла: $option"))
-        } else {
-            addMessage(Message(option))
-        }
+            sendRepsonceWithStory(1, 1, words)
 
-        sendRepsonceWithStory(option)
+        } else {
+            val index = options.value.indexOf(option)
+
+            addMessage(Message(option))
+            sendRepsonceWithStory(2, index, words)
+        }
     }
 
 
-    private suspend fun sendRepsonceWithStory(topic: String) {
+    private suspend fun sendRepsonceWithStory(level: Int, optionIndex: Int, words: List<String>) {
         withTyping {
-            val response = aiToolsService.chooseOptionQuizStory(topic)
+            val story = aiToolsService.getStory(level = level, prevText = optionIndex, words = words)
 
-            addMessage(Message(response.story, false))
+            addMessage(Message(story, false))
+        }
+
+        withTyping {
+            val options = aiToolsService.getStoryOptions(level = level, prevText = optionIndex, words = words)
 
             optionsTitle.update { FakeQuizStory.storyOptionsTitle }
-            _options.update { response.options }
+            _options.update { options }
         }
     }
 
@@ -73,14 +80,19 @@ object FakeQuizStory {
     const val storyText =
         "Борын-борын заманда, Казанның киң урман йөрәгендә, Алсу исемле яшь кыз яшәгән. Үзенең кызыксынучанлыгы белән танылган, ул табигатьне өйрәнергә яраткан. Бер кояшлы көнне, ул моңа кадәр күрмәгән яшерен сукмак ачкан. Кызыксынып, ул аның артыннан китте. Сукмак аны урманның тирәнрәк өлешенә, уртасында борынгы имән агачы торган ачыклыкка илтте. Агачның кәүсәсендә ишек киселгән иде. Алсу аңа таба ниндидер сәер тартылу сизде. Дулкынлану һәм саклык белән ул ишекне ачып эчкә атлады. Үзенең гаҗәпләнүенә каршы, ул үзен җәнлекләр белән тулы, тылсымлы төстәге дөньяда тапты. Җиләк исле җил исеп, һавада кошларның җырлаган тавышлары ишетелә иде. Алсу тирә-юнендә могҗизаларга күз салганда, ачыклыктан өч аерым сукмак китүен күрде."
 
-    const val storyOptionsTitle = "Хикәяне дәвам итү өчен вариантны сайла:"
+    const val storyOptionsTitle = "Выберите вариант для продолжения истории:"
     val storyOptions = listOf(
         "Сул сукмак: Алсу алтын төстәге ялтыраучы сукмак буйлап тылсымлы дөнья турында белем эзләп китә.",
         "Урта сукмак: Алсу борынгы агачлар һәм ерактан килгән көлү тавышлары белән тулы маҗаралы сукмактан китә.",
         "Уң сукмак: Алсу уң яктагы дус җәнлекләргә тартылып, яңа дуслар табарга өметләнеп китә."
     )
 
-    val topicOptionsTitle = "Менә берничә тема, алардан хикәяне башлап җибәрергә була:"
+    val topicOptionsTitle = "Вот несколько тем, с которых можно начать историю:"
     val topicOptionsList =
         listOf("Серле урман сукмагы", "Сихерле көзге", "Югалган патшалык")
 }
+
+data class OptionWithWords(
+    val option: String,
+    val words: List<String>
+)

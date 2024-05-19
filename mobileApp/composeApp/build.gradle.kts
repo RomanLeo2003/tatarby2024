@@ -1,9 +1,8 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    kotlin("plugin.serialization") version "1.9.23"
 }
 
 kotlin {
@@ -33,6 +32,8 @@ kotlin {
             implementation(libs.androidx.activity.compose)
 
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.startup.runtime)
+
         }
 
         iosMain.dependencies {

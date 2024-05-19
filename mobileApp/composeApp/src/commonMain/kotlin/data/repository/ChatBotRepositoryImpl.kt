@@ -27,10 +27,12 @@ class ChatBotRepositoryImpl(
     }
 
     private suspend fun askForRespond(messageText: String) {
-        if (_chatMessages.value.size == 1)
-            sendFirstMessagesWithTopic()
-        else
-            sendMessageToBotServer(messageText)
+        sendMessageToBotServer(messageText)
+
+//        if (_chatMessages.value.size == 1)
+//            sendFirstMessagesWithTopic()
+//        else
+//            sendMessageToBotServer(messageText)
     }
 
     private suspend fun sendMessageToBotServer(messageText: String) {

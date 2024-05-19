@@ -45,6 +45,7 @@ import tatarby.composeapp.generated.resources.loading
 import tatarby.composeapp.generated.resources.my_words
 import tatarby.composeapp.generated.resources.volume
 import ui.TatarskiAppBackground
+import ui.noRippleClickable
 import ui.theme.Green200
 import ui.theme.Green800
 import ui.theme.TatarskiTheme
@@ -55,13 +56,14 @@ internal fun MyWordsRoute(
 ) {
     val words by viewModel.words.collectAsState()
 
-    MyWordsScreen(modifier = Modifier.fillMaxSize(), words = words)
+    MyWordsScreen(modifier = Modifier.fillMaxSize(), words = words, pronounce = viewModel::pronounce)
 }
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun MyWordsScreen(
     words: List<Word>,
+    pronounce: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(modifier = modifier, backgroundColor = Color.Transparent, floatingActionButton = {
@@ -89,7 +91,7 @@ private fun MyWordsScreen(
             ) {
                 items(words) { word ->
 
-                    WordCard(word = word)
+                    WordCard(word = word, pronounce = pronounce)
                 }
 
                 item {
@@ -102,7 +104,7 @@ private fun MyWordsScreen(
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalResourceApi::class)
 @Composable
-private fun WordCard(word: Word, modifier: Modifier = Modifier) {
+private fun WordCard(word: Word, modifier: Modifier = Modifier, pronounce: (String) -> Unit = {}) {
     Card(
         modifier = modifier,
         backgroundColor = Green800,
@@ -139,7 +141,7 @@ private fun WordCard(word: Word, modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(Res.drawable.volume),
                 contentDescription = null,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(30.dp).noRippleClickable { pronounce(word.word) }
             )
         }
     }

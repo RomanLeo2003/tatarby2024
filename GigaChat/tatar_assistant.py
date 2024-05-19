@@ -103,5 +103,5 @@ class TatarAssistant:
         if str_len < 150:
             return feedbacks[2]
         else:
-            return feedbacks[randint(8)]
+            return feedbacks[randint(1, 8)]
 

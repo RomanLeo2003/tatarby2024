@@ -2,6 +2,7 @@ package ui.features.pronunciation
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +36,7 @@ import tatarby.composeapp.generated.resources.Res
 import tatarby.composeapp.generated.resources.continuee
 import tatarby.composeapp.generated.resources.feedback
 import tatarby.composeapp.generated.resources.loading
+import tatarby.composeapp.generated.resources.microphone
 import tatarby.composeapp.generated.resources.pause
 import tatarby.composeapp.generated.resources.pronounce_this_text
 import tatarby.composeapp.generated.resources.pronunciation_check
@@ -56,7 +59,8 @@ fun PronunciationRoute(navigateBack: () -> Unit, viewModel: PronunciationVM = ko
         onStopRecording = viewModel::onStopRecording,
         recordingUiState = recordingUiState,
         textToPronounce = textToPronounce,
-        onContinueClick = viewModel::onContinueClick
+        onContinueClick = viewModel::onContinueClick,
+        onPronounceClick = viewModel::pronounceText
     )
 }
 
@@ -69,7 +73,8 @@ fun PronunciationScreen(
     textToPronounce: String,
     onStartRecording: () -> Unit,
     onStopRecording: () -> Unit,
-    onContinueClick: () -> Unit
+    onContinueClick: () -> Unit,
+    onPronounceClick: () -> Unit
 ) {
     Column(modifier = modifier) {
         TopAppBarWithTyping(
@@ -95,21 +100,33 @@ fun PronunciationScreen(
                     fontSize = 18.sp
                 )
 
-                Text(
-                    text = textToPronounce,
-                    fontWeight = FontWeight.Bold,
-                    color = Gray500,
-                    fontSize = 16.sp
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = textToPronounce,
+                        fontWeight = FontWeight.Bold,
+                        color = Gray500,
+                        fontSize = 16.sp,
+                        modifier = Modifier.weight(1f)
+                    )
 
-                Spacer(Modifier.height(20.dp))
+                    IconButton(onPronounceClick) {
+                        Icon(
+                            painterResource(Res.drawable.volume),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = Color(35, 171, 247)
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(30.dp))
 
                 when (recordingUiState) {
                     RecordingUiState.Initial -> {
                         RecordCircle(
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                                 .noRippleClickable(onStartRecording),
-                            image = Res.drawable.volume
+                            image = Res.drawable.microphone
                         )
                     }
 
@@ -132,7 +149,7 @@ fun PronunciationScreen(
                     RecordingUiState.Loading -> {
                         RecordCircle(
                             modifier = Modifier.align(Alignment.CenterHorizontally),
-                            image = Res.drawable.volume
+                            image = Res.drawable.microphone
                         )
                     }
 
@@ -145,12 +162,7 @@ fun PronunciationScreen(
                         )
 
                         Text(
-                            text = "Отличная попытка, молодец! Вот несколько моментов, на которые стоит обратить внимание:\n" +
-                                    "\n" +
-                                    "Произношение слова \"телен\" было немного нечетким. Постарайся более ясно произносить звук \"л\" и мягкий \"н\".\n" +
-                                    "В слове \"өйрәнәм\" следует более чётко произносить первый звук \"ө\". Он должен быть отчетливо округлым.\n" +
-                                    "Ты немного пропустил интонацию в конце предложения, что сделало его звучание несколько монотонным. Попробуй в конце предложения немного поднять тон, чтобы подчеркнуть завершенность мысли.\n" +
-                                    "В целом, ты справился отлично! Продолжай практиковаться, и всё получится.",
+                            text = recordingUiState.feedback,
                             fontWeight = FontWeight.Bold,
                             color = Gray500,
                             fontSize = 16.sp,

@@ -9,5 +9,5 @@ interface QuizStoryRepository {
     val options: Flow<List<String>>
     val optionsTitle: Flow<String>
 
-    suspend fun chooseOption(option: String)
+    suspend fun chooseOption(option: String, words: List<String>)
 }
