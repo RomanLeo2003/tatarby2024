@@ -1,16 +1,21 @@
+Биек таулар һәм чиксез дала арасында урнашкан кечкенә үзбәк авылының үзәгендә матур бакча (бакча) булган. Бу бакча үзәгендә ялтырап торган Гүл күле бар иде. Авыл халкы күлнең сихри булуына һәм аның суларында су коенырга батырчылык иткән һәркемнең теләсә нинди теләген үтәргә сәләтле булуына ышанган. Бервакыт батыр малай күлнең көчен сынап карарга булган. Ул салкын суга чумды, уртага кадәр йөзде һәм теләк әйтте. Ул судан чыккач, кулында алтын алма була. Шул көннән бирле авылда ризыкка кытлык булмады, һәм малайны герой дип игълан иттеләр.
+Варианты:
+1. Але, бер вакытта, бакчачы (бакчачы) яшелчә (яшелчә) булды. Авыл халкы бу үзгәрешне күреп, күлнең сихры булуына ышанулары кемерелде.
+2. Алтын алма булган малайның бакчачысы булуына карар бирде. Ул бакчасында яшелчә алмалар һәм башка мәйле мәвеләр өстәде.
+
 from fastapi import FastAPI
 import base64
 import uvicorn
 from pydantic import BaseModel
 from typing import List, Dict, Any
 from tatar_assistant import TatarAssistant
-from asr import ASR_class
+from asr import ASR
 from T5 import T5
 import wave
 app = FastAPI()
 
 assistant = TatarAssistant()
-asr_class=ASR_class()
+asr=ASR()
 #t5=T5(model_name="")
 
 class StoryGet(BaseModel):
@@ -18,10 +23,8 @@ class StoryGet(BaseModel):
     prev_text: int
     words: List[str]
 
-class StoryReturnF(BaseModel):
+class StoryReturn(BaseModel):
     new_text: str
-
-class StoryReturnS(BaseModel):
     options: List[str]
 
 class Chat(BaseModel):
@@ -36,7 +39,7 @@ prev_story_sad = ""
 prev_story_happy = ""
 
 
-@app.post("/story/", response_model=StoryReturnF)
+@app.post("/story/", response_model=StoryReturn)
 def story(message: StoryGet):
     global prevka, prev_story_sad, prev_story_happy
     response = ""
@@ -48,29 +51,29 @@ def story(message: StoryGet):
 
     if message.level == 1:
         response = assistant.generate_first_text(ru_words[:2])
-        # prev_story_sad = assistant.generate_sad_contin(ru_words[2:4], response)
-        # prev_story_happy = assistant.generate_happy_contin(ru_words[2:4], response)
+        prev_story_sad = assistant.generate_sad_contin(ru_words[2:4], response)
+        prev_story_happy = assistant.generate_happy_contin(ru_words[2:4], response)
     if message.level == 2:
         response = prevka
-        # prev_story_sad = assistant.generate_sad_end(ru_words[-2:], response)
-        # prev_story_happy = assistant.generate_happy_end(ru_words[-2:], response)
+        prev_story_sad = assistant.generate_sad_end(ru_words[-2:], response)
+        prev_story_happy = assistant.generate_happy_end(ru_words[-2:], response)
     if message.level == 3:
         response = prevka
-        # prev_story_sad = ""
-        # prev_story_happy = ""
+        prev_story_sad = ""
+        prev_story_happy = ""
 
-    # answer_sad = assistant.take_first_sent(prev_story_sad)
-    # answer_happy = assistant.take_first_sent(prev_story_happy)
+    answer_sad = assistant.take_first_sent(prev_story_sad)
+    answer_happy = assistant.take_first_sent(prev_story_happy)
     prevka = response
 
     response_data = {
         "new_text": response,
-        # "options": [answer_sad, answer_happy]
+        "options": [answer_sad, answer_happy]
     }
     return response_data
 
 
-@app.post("/story_cont/", response_model=StoryReturnS)
+@app.post("/story_cont/", response_model=StoryReturn)
 def story(message: StoryGet):
     global prevka, prev_story_sad, prev_story_happy
     response = ""
@@ -94,6 +97,7 @@ def story(message: StoryGet):
     answer_happy = assistant.take_first_sent(prev_story_happy)
 
     response_data = {
+        "new_text": response,
         "options": [answer_sad, answer_happy]
     }
     return response_data
@@ -117,11 +121,9 @@ def asr_feedback(data: Asr_data):
     with wave.open(output_file, 'wb') as wf:
         wf.setnchannels(1)  # Установите количество каналов (1 для моно, 2 для стерео)
         wf.setsampwidth(2)  # Установите ширину выборки в байтах (2 для 16 бит)
-        wf.setframerate(16000)  # Установите частоту дискретизации (например, 44100 Гц)
+        wf.setframerate(44100)  # Установите частоту дискретизации (например, 44100 Гц)
         wf.writeframes(base64_audio)
-    response = asr_class.asr(filename=output_file)
-    msg = "Проверь и откоректируй следующее эссе на наличие грамматических, орфографических, пунктуационных и семантических ошибок на русском: " + message.user_message
-    response_errors = assistant.chat(msg)
+    response = ASR.asr(output_file, text)
     response_data = {
         "answer": response,
     }
